@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BUB</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+  <!-- ===================== LOGIN VIEW ===================== -->
+  <div id="view-login" class="hidden min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md page-enter">
+      <div class="text-center mb-8">
+        <div class="icon-box icon-box-lg mb-4">
+          <svg class="w-8 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+        </div>
+        <h1 class="text-2xl font-bold tracking-tight text-white" id="login-app-name">BUB</h1>
+        <p class="mt-1 text-slate-400 text-sm">Sign in to continue</p>
+      </div>
+
+      <div class="card p-8">
+        <form id="login-form" class="space-y-5">
+          <div>
+            <label class="block" for="login-username">Username</label>
+            <input id="login-username" type="text" required autocomplete="username"
+                   class="input" placeholder="Enter your username" />
+          </div>
+          <div>
+            <label class="block" for="login-password">Password</label>
+            <input id="login-password" type="password" required autocomplete="current-password"
+                   class="input" placeholder="••••••••" />
+          </div>
+          <div class="flex items-center justify-between">
+            <label class="check-row">
+              <input id="login-remember" type="checkbox" />
+              <span class="text-sm text-slate-400">Remember me</span>
+            </label>
+          </div>
+          <button type="submit" class="btn btn-primary w-full">Sign in</button>
+        </form>
+        <p id="login-error" class="mt-4 text-sm text-red-400 hidden text-center"></p>
+      </div>
+      <p class="mt-6 text-center text-xs text-slate-500">Passwords are hashed · Never stored as plain text</p>
+    </div>
+  </div>
+
+  <!-- ===================== MAIN APP SHELL ===================== -->
+  <div id="view-app" class="hidden min-h-screen flex">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="p-5 border-b">
+        <div class="flex items-center gap-3">
+          <div class="icon-box icon-box-sm">
+            <span class="text-indigo-400 font-bold text-sm">B</span>
+          </div>
+          <div>
+            <div class="font-semibold text-white leading-tight" id="sidebar-app-name">BUB</div>
+            <div class="text-xs text-slate-500" id="sidebar-username">—</div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="flex-1 p-3 space-y-1">
+        <button data-nav="dashboard" class="nav-link active">
+          <svg class="w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+          Dashboard
+        </button>
+        <button data-nav="settings" class="nav-link">
+          <svg class="w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          Settings
+        </button>
+        <div id="admin-nav-section" class="hidden">
+          <div class="pt-4 pb-1 px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Admin</div>
+          <button data-nav="admin" class="nav-link">
+            <svg class="w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            Admin Panel
+          </button>
+        </div>
+      </nav>
+
+      <div class="p-3 border-t">
+        <button id="btn-logout" class="nav-link text-red-400">
+          <svg class="w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          Sign out
+        </button>
+      </div>
+    </aside>
+
+    <!-- Mobile top bar -->
+    <div class="mobile-bar">
+      <span class="font-semibold text-white" id="mobile-app-name">BUB</span>
+      <div class="flex items-center gap-1">
+        <button data-nav="settings" class="p-2 hover-bg-slate" style="border-radius:0.5rem;background:transparent;border:none;color:#cbd5e1;cursor:pointer">
+          <svg class="w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </button>
+        <button id="btn-logout-mobile" class="p-2 hover-bg-slate" style="border-radius:0.5rem;background:transparent;border:none;color:#f87171;cursor:pointer">
+          <svg class="w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Content area -->
+    <main class="flex-1 overflow-auto">
+      <div class="p-4 md-p-8 max-w-6xl mx-auto mt-14 md-mt-0">
+
+        <!-- DASHBOARD -->
+        <div id="page-dashboard" class="page hidden">
+          <div class="mb-8">
+            <h1 class="text-2xl font-bold text-white tracking-tight">Dashboard</h1>
+            <p class="text-slate-400 mt-1">Welcome back, <span id="dash-username">—</span>.</p>
+          </div>
+          <div class="grid sm-grid-cols-2 lg-grid-cols-3 gap-6">
+            <div class="card p-6">
+              <div class="text-sm text-slate-400 mb-1">Account</div>
+              <div class="text-xl font-semibold text-white" id="dash-account">—</div>
+              <div class="mt-3 flex gap-2" id="dash-badges"></div>
+            </div>
+            <div class="card p-6">
+              <div class="text-sm text-slate-400 mb-1">Theme</div>
+              <div class="text-xl font-semibold text-white capitalize" id="dash-theme">—</div>
+              <div class="mt-3 text-sm text-slate-500">Change in Settings → Appearance</div>
+            </div>
+            <div class="card p-6">
+              <div class="text-sm text-slate-400 mb-1">Devices</div>
+              <div class="text-xl font-semibold text-white" id="dash-devices">0</div>
+              <div class="mt-3">
+                <button data-nav="settings" data-sub="devices" class="text-sm text-indigo-400 hover-text-indigo" style="background:none;border:none;cursor:pointer;padding:0">Manage devices →</button>
+              </div>
+            </div>
+          </div>
+          <div class="mt-8 card p-6">
+            <h2 class="text-lg font-semibold text-white mb-4">Quick actions</h2>
+            <div class="flex gap-3" style="flex-wrap:wrap">
+              <button data-nav="settings" data-sub="appearance" class="btn btn-secondary">Customize appearance</button>
+              <button data-nav="settings" data-sub="account" class="btn btn-secondary">Change password</button>
+              <button data-nav="admin" id="dash-admin-btn" class="btn btn-primary hidden">Open Admin Panel</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div id="page-settings" class="page hidden">
+          <div class="mb-8">
+            <h1 class="text-2xl font-bold text-white">Settings</h1>
+            <p class="text-slate-400 mt-1">Manage your account and preferences</p>
+          </div>
+
+          <div id="settings-menu" class="grid sm-grid-cols-2 gap-4">
+            <button data-sub="appearance" class="card p-6 text-left hover-border" style="cursor:pointer;background:var(--surface)">
+              <div class="flex items-center gap-4">
+                <div class="icon-box icon-box-md icon-indigo" style="border-radius:0.75rem">
+                  <svg class="w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+                </div>
+                <div>
+                  <div class="font-semibold text-white">Appearance</div>
+                  <div class="text-sm text-slate-400">Theme, background & density</div>
+                </div>
+              </div>
+            </button>
+            <button data-sub="account" class="card p-6 text-left hover-border" style="cursor:pointer;background:var(--surface)">
+              <div class="flex items-center gap-4">
+                <div class="icon-box icon-box-md icon-emerald" style="border-radius:0.75rem">
+                  <svg class="w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                </div>
+                <div>
+                  <div class="font-semibold text-white">Account</div>
+                  <div class="text-sm text-slate-400">Password & security</div>
+                </div>
+              </div>
+            </button>
+            <button data-sub="devices" class="card p-6 text-left hover-border" style="cursor:pointer;background:var(--surface)">
+              <div class="flex items-center gap-4">
+                <div class="icon-box icon-box-md icon-amber" style="border-radius:0.75rem">
+                  <svg class="w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                </div>
+                <div>
+                  <div class="font-semibold text-white">Devices</div>
+                  <div class="text-sm text-slate-400" id="settings-device-count">0 known devices</div>
+                </div>
+              </div>
+            </button>
+            <button data-sub="security" class="card p-6 text-left hover-border" style="cursor:pointer;background:var(--surface)">
+              <div class="flex items-center gap-4">
+                <div class="icon-box icon-box-md icon-rose" style="border-radius:0.75rem">
+                  <svg class="w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                </div>
+                <div>
+                  <div class="font-semibold text-white">Security</div>
+                  <div class="text-sm text-slate-400">Sessions & overview</div>
+                </div>
+              </div>
+            </button>
+          </div>
+
+          <!-- Appearance -->
+          <div id="settings-appearance" class="hidden">
+            <button data-back="settings" class="text-sm text-slate-400 hover-text-white mb-4" style="background:none;border:none;cursor:pointer;padding:0">← Settings</button>
+            <h2 class="text-xl font-bold text-white mb-6">Appearance</h2>
+            <div class="max-w-2xl space-y-6">
+              <div class="card p-6">
+                <h3 class="font-semibold text-white mb-4">Theme</h3>
+                <div class="grid grid-cols-3 gap-3" id="theme-options">
+                  <button data-theme="dark" class="theme-btn"><div class="text-sm font-medium text-slate-200">Dark</div></button>
+                  <button data-theme="light" class="theme-btn"><div class="text-sm font-medium text-slate-200">Light</div></button>
+                  <button data-theme="system" class="theme-btn"><div class="text-sm font-medium text-slate-200">System</div></button>
+                </div>
+              </div>
+              <div class="card p-6">
+                <h3 class="font-semibold text-white mb-4">Background</h3>
+                <div class="space-y-4">
+                  <div>
+                    <label class="block">Type</label>
+                    <select id="bg-type" class="input">
+                      <option value="gradient">Gradient</option>
+                      <option value="color">Solid color</option>
+                      <option value="image">Image URL</option>
+                      <option value="none">None (default)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block">Value</label>
+                    <input id="bg-value" type="text" class="input" placeholder="linear-gradient(...) or #0f172a or https://..." />
+                    <p class="mt-1-5 text-xs text-slate-500">CSS gradient, hex color, or direct image URL</p>
+                  </div>
+                  <button id="btn-save-appearance" class="btn btn-primary">Save appearance</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Account -->
+          <div id="settings-account" class="hidden">
+            <button data-back="settings" class="text-sm text-slate-400 hover-text-white mb-4" style="background:none;border:none;cursor:pointer;padding:0">← Settings</button>
+            <h2 class="text-xl font-bold text-white mb-6">Change Password</h2>
+            <div class="max-w-lg card p-6">
+              <form id="password-form" class="space-y-5">
+                <div>
+                  <label class="block">Current password</label>
+                  <input id="pw-current" type="password" required class="input" autocomplete="current-password" />
+                </div>
+                <div>
+                  <label class="block">New password</label>
+                  <input id="pw-new" type="password" required minlength="8" class="input" autocomplete="new-password" placeholder="At least 8 characters" />
+                </div>
+                <div>
+                  <label class="block">Confirm new password</label>
+                  <input id="pw-confirm" type="password" required class="input" autocomplete="new-password" />
+                </div>
+                <button type="submit" class="btn btn-primary">Update password</button>
+              </form>
+              <p class="mt-4 text-xs text-slate-500">Password is hashed with PBKDF2 and never stored in plain text. The new password works immediately for future logins.</p>
+            </div>
+          </div>
+
+          <!-- Devices -->
+          <div id="settings-devices" class="hidden">
+            <button data-back="settings" class="text-sm text-slate-400 hover-text-white mb-4" style="background:none;border:none;cursor:pointer;padding:0">← Settings</button>
+            <h2 class="text-xl font-bold text-white mb-6">Your Devices</h2>
+            <div id="devices-list" class="space-y-3"></div>
+          </div>
+
+          <!-- Security -->
+          <div id="settings-security" class="hidden">
+            <button data-back="settings" class="text-sm text-slate-400 hover-text-white mb-4" style="background:none;border:none;cursor:pointer;padding:0">← Settings</button>
+            <h2 class="text-xl font-bold text-white mb-6">Security</h2>
+            <div class="grid gap-6 max-w-2xl">
+              <div class="card p-6">
+                <h3 class="font-semibold text-white mb-3">Password</h3>
+                <p class="text-sm text-slate-400 mb-4">Your password is stored using a strong one-way hash (PBKDF2). It can never be recovered, only changed.</p>
+                <button data-sub="account" class="btn btn-secondary text-sm">Change password</button>
+              </div>
+              <div class="card p-6">
+                <h3 class="font-semibold text-white mb-3">Account status</h3>
+                <dl class="space-y-2 text-sm" id="security-info"></dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADMIN PANEL -->
+        <div id="page-admin" class="page hidden">
+          <div class="mb-8">
+            <h1 class="text-2xl font-bold text-white">Admin Dashboard</h1>
+            <p class="text-slate-400 mt-1">System overview and controls</p>
+          </div>
+
+          <div class="grid grid-cols-2 lg-grid-cols-4 gap-4 mb-8" id="admin-stats"></div>
+
+          <div class="grid lg-grid-cols-2 gap-6 mb-8">
+            <div class="card p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="font-semibold text-white">Users</h2>
+              </div>
+              <div id="admin-users-list" class="space-y-3"></div>
+            </div>
+            <div class="card p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="font-semibold text-white">Recent Devices</h2>
+              </div>
+              <div id="admin-devices-list" class="space-y-3"></div>
+            </div>
+          </div>
+
+          <div class="card p-6 max-w-2xl">
+            <h2 class="font-semibold text-white mb-4">Global Settings</h2>
+            <div class="space-y-4">
+              <div>
+                <label class="block">Application name</label>
+                <input id="admin-app-name" type="text" class="input" maxlength="40" />
+              </div>
+              <div>
+                <label class="block">Default background (CSS)</label>
+                <input id="admin-global-bg" type="text" class="input" placeholder="linear-gradient(...) or #0f172a" />
+              </div>
+              <div class="check-row">
+                <input id="admin-allow-reg" type="checkbox" />
+                <label for="admin-allow-reg" class="text-sm text-slate-300">Allow new user registration</label>
+              </div>
+              <button id="btn-save-global" class="btn btn-primary">Save global settings</button>
+            </div>
+          </div>
+
+          <div class="card p-6 max-w-2xl mt-6">
+            <h2 class="font-semibold text-white mb-4">Create User</h2>
+            <form id="admin-create-user" class="space-y-4">
+              <div class="grid sm-grid-cols-2 gap-4">
+                <div>
+                  <label class="block">Username</label>
+                  <input id="new-username" type="text" required minlength="3" class="input" />
+                </div>
+                <div>
+                  <label class="block">Password</label>
+                  <input id="new-password" type="password" required minlength="8" class="input" />
+                </div>
+              </div>
+              <div class="check-row">
+                <input id="new-is-admin" type="checkbox" />
+                <label for="new-is-admin" class="text-sm text-slate-300">Make admin</label>
+              </div>
+              <button type="submit" class="btn btn-secondary">Create account</button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast container -->
+  <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/device.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
