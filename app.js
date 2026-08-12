@@ -1,442 +1,483 @@
-/**
- * BUB — Main application logic
- * Pure HTML/JS single-page experience
- */
+/* ============================================================
+   BUB — Polished pure CSS
+   ============================================================ */
 
-(function () {
-  // ---------- Toast ----------
-  function toast(message, type = 'info') {
-    const container = document.getElementById('toast-container');
-    const el = document.createElement('div');
-    el.className = `toast toast-${type}`;
-    el.innerHTML = `
-      <span class="flex-1 text-sm font-medium">${escapeHtml(message)}</span>
-      <button class=" text-lg leading-none">&times;</button>
-    `;
-    el.querySelector('button').onclick = () => el.remove();
-    container.appendChild(el);
-    setTimeout(() => {
-      el.style.opacity = '0';
-      el.style.transform = 'translateX(1.5rem)';
-      el.style.transition = 'all 0.3s';
-      setTimeout(() => el.remove(), 300);
-    }, 4500);
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  function escapeHtml(str) {
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
+:root {
+  --bg: #0b0f1a;
+  --bg-elevated: #111827;
+  --surface: rgba(17, 24, 39, 0.75);
+  --surface-solid: #111827;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.1);
+  --text: #f1f5f9;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  --primary: #6366f1;
+  --primary-hover: #818cf8;
+  --primary-soft: rgba(99, 102, 241, 0.15);
+  --danger: #f87171;
+  --success: #34d399;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --font: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.45);
+}
 
-  // ---------- Background / Theme ----------
-  function applyBackground(user) {
-    const global = Storage.getGlobal();
-    let bg = global.background || '';
+html { height: 100%; scroll-behavior: smooth; }
 
-    if (user) {
-      if (user.backgroundType === 'image' && user.backgroundValue) {
-        document.body.style.background = `url('${user.backgroundValue}') center/cover fixed`;
-        return;
-      }
-      if ((user.backgroundType === 'color' || user.backgroundType === 'gradient') && user.backgroundValue) {
-        document.body.style.background = user.backgroundValue;
-        return;
-      }
-    }
-    document.body.style.background = bg || '#020617';
-  }
+body {
+  min-height: 100%;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+  font-size: 15px;
+}
 
-  function applyTheme(theme) {
-    const root = document.documentElement;
-    if (theme === 'light') {
-      root.classList.remove('dark');
-      // light overrides could be added later
-    } else {
-      root.classList.add('dark');
-    }
-  }
+/* Background mesh */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% -20%, rgba(99, 102, 241, 0.18), transparent),
+    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(139, 92, 246, 0.12), transparent),
+    radial-gradient(ellipse 50% 30% at 50% 100%, rgba(59, 130, 246, 0.08), transparent);
+  pointer-events: none;
+  z-index: -1;
+}
 
-  // ---------- View switching ----------
-  function showView(name) {
-    document.getElementById('view-login').classList.toggle('hidden', name !== 'login');
-    document.getElementById('view-app').classList.toggle('hidden', name !== 'app');
-  }
+/* ---------- Utilities ---------- */
+.hidden { display: none !important; }
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
+.w-full { width: 100%; }
+.max-w-md { max-width: 26rem; }
+.max-w-lg { max-width: 32rem; }
+.max-w-2xl { max-width: 42rem; }
+.max-w-6xl { max-width: 68rem; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+.min-h-screen { min-height: 100vh; }
+.flex-1 { flex: 1 1 0%; }
+.overflow-auto { overflow: auto; }
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.fixed { position: fixed; }
+.top-4 { top: 1rem; }
+.right-4 { right: 1rem; }
+.z-50 { z-index: 50; }
+.pointer-events-none { pointer-events: none; }
+.cursor-pointer { cursor: pointer; }
 
-  function showPage(page) {
-    document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-    const el = document.getElementById('page-' + page);
-    if (el) {
-      el.classList.remove('hidden');
-      el.classList.add('page-enter');
-    }
-    // nav active state
-    document.querySelectorAll('[data-nav]').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.nav === page);
-    });
-  }
+.p-2 { padding: 0.5rem; }
+.p-3 { padding: 0.75rem; }
+.p-4 { padding: 1rem; }
+.p-5 { padding: 1.25rem; }
+.p-6 { padding: 1.5rem; }
+.p-8 { padding: 2rem; }
+.p-10 { padding: 2.5rem; }
+.px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+.px-4 { padding-left: 1rem; padding-right: 1rem; }
+.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+.pt-4 { padding-top: 1rem; }
+.pb-1 { padding-bottom: 0.25rem; }
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 0.75rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.mb-8 { margin-bottom: 2rem; }
+.mt-1 { margin-top: 0.25rem; }
+.mt-3 { margin-top: 0.75rem; }
+.mt-4 { margin-top: 1rem; }
+.mt-6 { margin-top: 1.5rem; }
+.mt-8 { margin-top: 2rem; }
+.mt-14 { margin-top: 3.5rem; }
+.ml-2 { margin-left: 0.5rem; }
 
-  function showSettingsSub(sub) {
-    document.getElementById('settings-menu').classList.toggle('hidden', !!sub);
-    ['appearance', 'account', 'devices', 'security'].forEach(s => {
-      const el = document.getElementById('settings-' + s);
-      if (el) el.classList.toggle('hidden', s !== sub);
-    });
-  }
+.space-y-2 > * + * { margin-top: 0.5rem; }
+.space-y-3 > * + * { margin-top: 0.75rem; }
+.space-y-4 > * + * { margin-top: 1rem; }
+.space-y-5 > * + * { margin-top: 1.25rem; }
+.space-y-6 > * + * { margin-top: 1.5rem; }
 
-  // ---------- Render helpers ----------
-  function renderDashboard() {
-    const user = Auth.currentUser();
-    if (!user) return;
+.text-xs { font-size: 0.75rem; line-height: 1.1; }
+.text-sm { font-size: 0.875rem; line-height: 1.35; }
+.text-lg { font-size: 1.125rem; }
+.text-xl { font-size: 1.25rem; }
+.text-2xl { font-size: 1.5rem; letter-spacing: -0.02em; }
+.text-3xl { font-size: 1.875rem; letter-spacing: -0.02em; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+.tracking-tight { letter-spacing: -0.025em; }
+.uppercase { text-transform: uppercase; }
+.tracking-wider { letter-spacing: 0.06em; }
+.capitalize { text-transform: capitalize; }
 
-    document.getElementById('dash-username').textContent = user.username;
-    document.getElementById('dash-account').textContent = user.username;
-    document.getElementById('dash-theme').textContent = user.theme || 'dark';
-    document.getElementById('dash-devices').textContent = (user.devices || []).length;
+.text-white { color: #fff; }
+.text-slate-200 { color: #e2e8f0; }
+.text-slate-300 { color: #cbd5e1; }
+.text-slate-400 { color: #94a3b8; }
+.text-slate-500 { color: #64748b; }
+.text-indigo-400 { color: #a5b4fc; }
+.text-emerald-400 { color: #34d399; }
+.text-amber-400 { color: #fbbf24; }
+.text-rose-400 { color: #fb7185; }
+.text-red-400 { color: #f87171; }
 
-    const badges = document.getElementById('dash-badges');
-    badges.innerHTML = '';
-    if (user.isAdmin) badges.innerHTML += '<span class="badge badge-admin">Admin</span>';
-    badges.innerHTML += '<span class="badge badge-active">Active</span>';
+/* ---------- Cards ---------- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
 
-    document.getElementById('dash-admin-btn').classList.toggle('hidden', !user.isAdmin);
-    document.getElementById('admin-nav-section').classList.toggle('hidden', !user.isAdmin);
-  }
+/* ---------- Inputs ---------- */
+.input {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.input::placeholder { color: #64748b; }
+.input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: rgba(0, 0, 0, 0.45);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+}
 
-  function renderSettingsMenu() {
-    const user = Auth.currentUser();
-    const count = (user?.devices || []).length;
-    document.getElementById('settings-device-count').textContent =
-      `${count} known device${count === 1 ? '' : 's'}`;
-  }
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
+}
 
-  function renderAppearance() {
-    const user = Auth.currentUser();
-    if (!user) return;
-    document.getElementById('bg-type').value = user.backgroundType || 'none';
-    document.getElementById('bg-value').value = user.backgroundValue || '';
-    document.querySelectorAll('.theme-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.theme === (user.theme || 'dark'));
-    });
-  }
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.15rem;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: transform 0.12s, background 0.15s, box-shadow 0.15s, opacity 0.15s;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.45; pointer-events: none; }
 
-  function renderDevices() {
-    const user = Auth.currentUser();
-    const list = document.getElementById('devices-list');
-    const devices = user?.devices || [];
+.btn-primary {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #818cf8, #6366f1);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+}
 
-    if (devices.length === 0) {
-      list.innerHTML = `<div class="card p-10 text-center text-slate-400">No devices recorded yet.</div>`;
-      return;
-    }
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  color: #e2e8f0;
+  border: 1px solid var(--border-strong);
+}
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.15);
+}
 
-    list.innerHTML = devices
-      .sort((a, b) => new Date(b.lastSeen) - new Date(a.lastSeen))
-      .map(d => `
-        <div class="card p-5 flex justify-between gap-4" style="flex-wrap:wrap;align-items:center">
-          <div>
-            <div class="font-medium text-white">${escapeHtml(d.name)}</div>
-            <div class="text-sm text-slate-400 mt-0-5">${escapeHtml(d.platform)} · ${escapeHtml(d.screen)}</div>
-            <div class="text-xs text-slate-500 mt-1">
-              First seen ${formatDate(d.firstSeen)} · Last active ${formatDate(d.lastSeen)}
-            </div>
-          </div>
-          <button class="btn btn-ghost text-red-400 text-sm forget-device" data-fp="${d.fingerprint}">Forget</button>
-        </div>
-      `).join('');
+.btn-ghost {
+  background: transparent;
+  color: #94a3b8;
+}
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
+}
 
-    list.querySelectorAll('.forget-device').forEach(btn => {
-      btn.onclick = () => {
-        if (!confirm('Remove this device from your account?')) return;
-        Device.forgetDevice(user.username, btn.dataset.fp);
-        toast('Device removed', 'success');
-        renderDevices();
-        renderDashboard();
-      };
-    });
-  }
+/* ---------- Navigation ---------- */
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #94a3b8;
+  transition: color 0.15s, background 0.15s;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
+.nav-link:hover {
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.05);
+}
+.nav-link.active {
+  color: #fff;
+  background: var(--primary-soft);
+  box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.25);
+}
+.nav-link svg { opacity: 0.85; }
 
-  function renderSecurity() {
-    const user = Auth.currentUser();
-    if (!user) return;
-    document.getElementById('security-info').innerHTML = `
-      <div class="flex justify-between"><dt class="text-slate-400">Username</dt><dd class="text-white font-medium">${escapeHtml(user.username)}</dd></div>
-      <div class="flex justify-between"><dt class="text-slate-400">Role</dt><dd>${user.isAdmin ? '<span class="badge badge-admin">Admin</span>' : '<span class="badge badge-active">User</span>'}</dd></div>
-      <div class="flex justify-between"><dt class="text-slate-400">Member since</dt><dd class="text-white">${formatDate(user.createdAt)}</dd></div>
-      <div class="flex justify-between"><dt class="text-slate-400">Last login</dt><dd class="text-white">${formatDate(user.lastLogin)}</dd></div>
-    `;
-  }
+.sidebar {
+  width: 15.5rem;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  background: rgba(11, 15, 26, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: none;
+  flex-direction: column;
+}
 
-  function renderAdmin() {
-    const users = Storage.getUsers();
-    const userList = Object.values(users);
-    const allDevices = userList.flatMap(u => (u.devices || []).map(d => ({ ...d, owner: u.username })));
+/* ---------- Badges ---------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.badge-admin { background: rgba(99, 102, 241, 0.2); color: #a5b4fc; }
+.badge-active { background: rgba(52, 211, 153, 0.15); color: #34d399; }
+.badge-inactive { background: rgba(100, 116, 139, 0.2); color: #94a3b8; }
 
-    // Stats
-    document.getElementById('admin-stats').innerHTML = `
-      <div class="card p-5"><div class="text-sm text-slate-400">Users</div><div class="text-3xl font-bold text-white mt-1">${userList.length}</div></div>
-      <div class="card p-5"><div class="text-sm text-slate-400">Active</div><div class="text-3xl font-bold text-emerald-400 mt-1">${userList.filter(u => u.isActive).length}</div></div>
-      <div class="card p-5"><div class="text-sm text-slate-400">Admins</div><div class="text-3xl font-bold text-indigo-400 mt-1">${userList.filter(u => u.isAdmin).length}</div></div>
-      <div class="card p-5"><div class="text-sm text-slate-400">Devices</div><div class="text-3xl font-bold text-amber-400 mt-1">${allDevices.length}</div></div>
-    `;
+/* ---------- Theme buttons ---------- */
+.theme-btn {
+  border-radius: 12px;
+  border: 1.5px solid var(--border-strong);
+  padding: 1rem 0.75rem;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.12s;
+  color: inherit;
+  font-family: inherit;
+}
+.theme-btn:hover { border-color: rgba(255,255,255,0.18); }
+.theme-btn.active {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
 
-    // Users
-    document.getElementById('admin-users-list').innerHTML = userList
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-      .map(u => `
-        <div class="list-row">
-          <div>
-            <span class="text-white font-medium">${escapeHtml(u.username)}</span>
-            ${u.isAdmin ? '<span class="badge badge-admin ml-2">Admin</span>' : ''}
-            ${!u.isActive ? '<span class="badge badge-inactive ml-2">Disabled</span>' : ''}
-          </div>
-          <div class="flex gap-2">
-            ${u.username !== Auth.currentUser().username ? `
-              <button class="text-xs text-slate-400 hover-text-white toggle-active" data-user="${u.username}">${u.isActive ? 'Disable' : 'Enable'}</button>
-              <button class="text-xs text-slate-400 hover-text-white toggle-admin" data-user="${u.username}">${u.isAdmin ? 'Revoke admin' : 'Make admin'}</button>
-              <button class="text-xs text-red-400 hover-text-red delete-user" data-user="${u.username}">Delete</button>
-            ` : '<span class="text-xs text-slate-500">You</span>'}
-          </div>
-        </div>
-      `).join('') || '<p class="text-slate-500 text-sm">No users</p>';
+/* ---------- Icon boxes ---------- */
+.icon-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+}
+.icon-box-lg {
+  width: 3.75rem;
+  height: 3.75rem;
+  background: linear-gradient(135deg, rgba(99,102,241,0.25), rgba(139,92,246,0.15));
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15);
+}
+.icon-box-sm {
+  width: 2.15rem;
+  height: 2.15rem;
+  background: linear-gradient(135deg, rgba(99,102,241,0.3), rgba(139,92,246,0.2));
+  border: 1px solid rgba(99, 102, 241, 0.35);
+}
+.icon-box-md {
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 12px;
+}
 
-    // Devices
-    document.getElementById('admin-devices-list').innerHTML = allDevices
-      .sort((a, b) => new Date(b.lastSeen) - new Date(a.lastSeen))
-      .slice(0, 8)
-      .map(d => `
-        <div class="list-row">
-          <div>
-            <span class="text-white font-medium">${escapeHtml(d.name)}</span>
-            <span class="text-slate-500 ml-2">${escapeHtml(d.owner)}</span>
-          </div>
-          <span class="text-slate-500">${formatDate(d.lastSeen, true)}</span>
-        </div>
-      `).join('') || '<p class="text-slate-500 text-sm">No devices</p>';
+.icon-indigo { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; }
+.icon-emerald { background: rgba(52, 211, 153, 0.12); color: #34d399; }
+.icon-amber { background: rgba(251, 191, 36, 0.12); color: #fbbf24; }
+.icon-rose { background: rgba(251, 113, 133, 0.12); color: #fb7185; }
 
-    // Global form
-    const global = Storage.getGlobal();
-    document.getElementById('admin-app-name').value = global.appName || 'BUB';
-    document.getElementById('admin-global-bg').value = global.background || '';
-    document.getElementById('admin-allow-reg').checked = !!global.allowRegistration;
+/* ---------- Grid ---------- */
+.grid { display: grid; gap: 1rem; }
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
 
-    // Wire actions
-    document.querySelectorAll('.toggle-active').forEach(btn => {
-      btn.onclick = () => {
-        const u = Storage.getUser(btn.dataset.user);
-        Storage.upsertUser(btn.dataset.user, { isActive: !u.isActive });
-        toast(`User ${u.isActive ? 'disabled' : 'enabled'}`, 'success');
-        renderAdmin();
-      };
-    });
-    document.querySelectorAll('.toggle-admin').forEach(btn => {
-      btn.onclick = () => {
-        const u = Storage.getUser(btn.dataset.user);
-        Storage.upsertUser(btn.dataset.user, { isAdmin: !u.isAdmin });
-        toast(`Admin rights ${u.isAdmin ? 'revoked' : 'granted'}`, 'success');
-        renderAdmin();
-      };
-    });
-    document.querySelectorAll('.delete-user').forEach(btn => {
-      btn.onclick = () => {
-        if (!confirm(`Permanently delete “${btn.dataset.user}”?`)) return;
-        const users = Storage.getUsers();
-        delete users[btn.dataset.user];
-        Storage.saveUsers(users);
-        toast('User deleted', 'success');
-        renderAdmin();
-      };
-    });
-  }
+.border-b { border-bottom: 1px solid var(--border); }
+.border-t { border-top: 1px solid var(--border); }
 
-  function formatDate(iso, short = false) {
-    if (!iso) return '—';
-    const d = new Date(iso);
-    if (short) return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' +
-                     d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-    return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  }
+/* ---------- Mobile bar ---------- */
+.mobile-bar {
+  display: flex;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 40;
+  background: rgba(11, 15, 26, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
 
-  // ---------- Bootstrap after login ----------
-  async function enterApp() {
-    const user = Auth.currentUser();
-    if (!user) {
-      showView('login');
-      return;
-    }
+/* ---------- Animation ---------- */
+.page-enter {
+  animation: fadeUp 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
-    // Update chrome
-    const global = Storage.getGlobal();
-    document.getElementById('sidebar-app-name').textContent = global.appName;
-    document.getElementById('mobile-app-name').textContent = global.appName;
-    document.getElementById('sidebar-username').textContent = user.username;
-    document.getElementById('login-app-name').textContent = global.appName;
+/* ---------- Toast ---------- */
+.toast {
+  pointer-events: auto;
+  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem 1.1rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid;
+  backdrop-filter: blur(12px);
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(1.25rem); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.toast-success { background: rgba(6, 78, 59, 0.92); border-color: rgba(52, 211, 153, 0.3); color: #d1fae5; }
+.toast-error   { background: rgba(127, 29, 29, 0.92); border-color: rgba(248, 113, 113, 0.3); color: #fee2e2; }
+.toast-info    { background: rgba(17, 24, 39, 0.95); border-color: var(--border-strong); color: #e2e8f0; }
 
-    applyBackground(user);
-    applyTheme(user.theme || 'dark');
+/* ---------- Labels & checkboxes ---------- */
+label.block {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #94a3b8;
+  margin-bottom: 0.4rem;
+  letter-spacing: 0.01em;
+}
 
-    // Record device
-    try {
-      await Device.recordForUser(user.username);
-    } catch (e) { /* non-critical */ }
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  cursor: pointer;
+  user-select: none;
+}
+.check-row input[type="checkbox"] {
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
 
-    showView('app');
-    showPage('dashboard');
-    renderDashboard();
-  }
+/* ---------- SVG ---------- */
+svg { display: block; flex-shrink: 0; }
+.w-5 { width: 1.2rem; height: 1.2rem; }
+.w-6 { width: 1.4rem; height: 1.4rem; }
+.w-8 { width: 1.75rem; height: 1.75rem; }
 
-  // ---------- Event listeners ----------
-  document.getElementById('login-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const username = document.getElementById('login-username').value;
-    const password = document.getElementById('login-password').value;
-    const remember = document.getElementById('login-remember').checked;
-    const errEl = document.getElementById('login-error');
-    errEl.classList.add('hidden');
+.hover-border:hover { border-color: rgba(99, 102, 241, 0.35); }
+.hover-text-white:hover { color: #fff; }
+.hover-text-indigo:hover { color: #c7d2fe; }
+.hover-text-red:hover { color: #fca5a5; }
+.hover-bg-slate:hover { background: rgba(255, 255, 255, 0.06); }
 
-    try {
-      await Auth.login(username, password, remember);
-      toast('Signed in successfully', 'success');
-      await enterApp();
-    } catch (err) {
-      errEl.textContent = err.message;
-      errEl.classList.remove('hidden');
-    }
-  });
+/* ---------- List rows ---------- */
+.list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.list-row:last-child { border-bottom: none; }
 
-  document.getElementById('btn-logout').addEventListener('click', () => {
-    Auth.logout();
-    showView('login');
-    toast('Signed out', 'info');
-  });
-  document.getElementById('btn-logout-mobile').addEventListener('click', () => {
-    Auth.logout();
-    showView('login');
-  });
+/* ---------- Settings cards as buttons ---------- */
+button.card {
+  font-family: inherit;
+  color: inherit;
+  transition: border-color 0.15s, transform 0.12s, background 0.15s;
+}
+button.card:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-1px);
+}
 
-  // Navigation
-  document.querySelectorAll('[data-nav]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const page = btn.dataset.nav;
-      if (page === 'admin' && !Auth.currentUser()?.isAdmin) return;
-      showPage(page);
-      if (page === 'dashboard') renderDashboard();
-      if (page === 'settings') {
-        showSettingsSub(null);
-        renderSettingsMenu();
-      }
-      if (page === 'admin') renderAdmin();
-    });
-  });
+/* ---------- Login polish ---------- */
+#view-login .card {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border-strong);
+}
 
-  // Settings sub-navigation
-  document.querySelectorAll('[data-sub]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const sub = btn.dataset.sub;
-      showPage('settings');
-      showSettingsSub(sub);
-      if (sub === 'appearance') renderAppearance();
-      if (sub === 'devices') renderDevices();
-      if (sub === 'security') renderSecurity();
-    });
-  });
+/* ---------- Responsive ---------- */
+@media (min-width: 640px) {
+  .sm-grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+}
 
-  document.querySelectorAll('[data-back]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      showSettingsSub(null);
-      renderSettingsMenu();
-    });
-  });
+@media (min-width: 768px) {
+  .sidebar { display: flex; }
+  .mobile-bar { display: none; }
+  .md-mt-0 { margin-top: 0; }
+  .md-p-8 { padding: 2rem; }
+}
 
-  // Theme buttons
-  document.querySelectorAll('.theme-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const theme = btn.dataset.theme;
-      const user = Auth.currentUser();
-      Storage.upsertUser(user.username, { theme });
-      applyTheme(theme);
-      document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.dataset.theme === theme));
-      toast('Theme updated', 'success');
-    });
-  });
+@media (min-width: 1024px) {
+  .lg-grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .lg-grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .lg-grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+}
 
-  // Save appearance
-  document.getElementById('btn-save-appearance').addEventListener('click', () => {
-    const user = Auth.currentUser();
-    const type = document.getElementById('bg-type').value;
-    const value = document.getElementById('bg-value').value.trim();
-    Storage.upsertUser(user.username, {
-      backgroundType: type,
-      backgroundValue: value
-    });
-    applyBackground(Storage.getUser(user.username));
-    toast('Appearance saved', 'success');
-  });
+/* Scrollbar */
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.4); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.6); }
 
-  // Password change
-  document.getElementById('password-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const current = document.getElementById('pw-current').value;
-    const next = document.getElementById('pw-new').value;
-    const confirm = document.getElementById('pw-confirm').value;
-
-    if (next !== confirm) {
-      toast('New passwords do not match', 'error');
-      return;
-    }
-
-    try {
-      await Auth.changePassword(Auth.currentUser().username, current, next);
-      document.getElementById('password-form').reset();
-      toast('Password updated — it works immediately', 'success');
-    } catch (err) {
-      toast(err.message, 'error');
-    }
-  });
-
-  // Admin global settings
-  document.getElementById('btn-save-global').addEventListener('click', () => {
-    Storage.saveGlobal({
-      appName: document.getElementById('admin-app-name').value.trim() || 'BUB',
-      background: document.getElementById('admin-global-bg').value.trim(),
-      allowRegistration: document.getElementById('admin-allow-reg').checked
-    });
-    const global = Storage.getGlobal();
-    document.getElementById('sidebar-app-name').textContent = global.appName;
-    document.getElementById('mobile-app-name').textContent = global.appName;
-    applyBackground(Auth.currentUser());
-    toast('Global settings saved', 'success');
-  });
-
-  // Admin create user
-  document.getElementById('admin-create-user').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const username = document.getElementById('new-username').value;
-    const password = document.getElementById('new-password').value;
-    const isAdmin = document.getElementById('new-is-admin').checked;
-    try {
-      await Auth.createUser(username, password, { isAdmin });
-      document.getElementById('admin-create-user').reset();
-      toast(`User “${username}” created`, 'success');
-      renderAdmin();
-    } catch (err) {
-      toast(err.message, 'error');
-    }
-  });
-
-  // ---------- Init ----------
-  (async function init() {
-    await Auth.ensureDefaultAdmin();
-
-    if (Auth.isLoggedIn()) {
-      await enterApp();
-    } else {
-      const global = Storage.getGlobal();
-      document.getElementById('login-app-name').textContent = global.appName;
-      applyBackground(null);
-      showView('login');
-    }
-  })();
-})();
+/* Focus visible for accessibility */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+button:focus:not(:focus-visible),
+input:focus:not(:focus-visible) {
+  outline: none;
+}
